@@ -1,0 +1,958 @@
+/* src/App.css */
+
+/* --- Dark Theme (Default) --- */
+:root {
+    --background-dark: #0f0f1a; /* Deeper, more saturated dark */
+    --secondary-dark: #1b1b33; /* Slightly lighter for components, subtle difference */
+    --tertiary-dark: #2c2c4d; /* Another dark shade, good for card backgrounds */
+    --accent-blue: #00bcd4; /* Brighter blue for accents - Keep */
+    --accent-blue-light: #00e5ff; /* Lighter blue for hover */
+    --accent-green: #00e676; /* Brighter green for BUY/Positive - More vibrant */
+    --accent-red: #ff3d71; /* Brighter red for SELL/Negative - More vibrant */
+    --accent-yellow: #ffd700; /* Gold for HOLD/Highlights - Pure Gold */
+    --text-light: #e0e0e0; /* Light gray for general text */
+    --text-dim: #a0a0a0; /* Dimmer text for labels */
+    --border-color: #3a3a5e; /* Slightly lighter border for visibility */
+    --shadow-color: rgba(0, 0, 0, 0.6); /* Slightly stronger shadow */
+    --border-radius-main: 12px; /* Slightly more rounded */
+    --spacing-unit: 20px;
+}
+
+/* --- Light Theme --- */
+body.light-theme {
+    --background-dark: #f4f7f9;
+    --secondary-dark: #ffffff;
+    --tertiary-dark: #e9ecef;
+    --accent-blue: #007bff;
+    --accent-blue-light: #3395ff;
+    --accent-green: #28a745;
+    --accent-red: #dc3545;
+    --accent-yellow: #ffc107;
+    --text-light: #212529; /* Main text is dark */
+    --text-dim: #6c757d;   /* Dim text is muted gray */
+    --border-color: #dee2e6;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Outfit', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+}
+
+code {
+    font-family: 'Fira Code', monospace;
+}
+
+.App {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header Styling */
+.App-header {
+    background-color: var(--secondary-dark);
+    padding: 10px 15px; /* ลด padding ของ header */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+    z-index: 100;
+    flex-wrap: wrap;
+    transition: background-color 0.3s ease;
+    gap: 10px; /* ลดช่องว่างใน header */
+}
+
+.header-left, .header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* ลดช่องว่างระหว่างส่วนซ้ายและขวาของ header */
+    flex-wrap: wrap;
+}
+
+/* AI Signal Display */
+.ai-signal-display {
+    display: flex;
+    gap: 10px; /* ลดช่องว่างระหว่างรายการสัญญาณ */
+    align-items: center;
+    font-size: 1.1em;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.signal-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 12px; /* ลด padding ภายในรายการสัญญาณ */
+    border-radius: var(--border-radius-main);
+    background-color: var(--tertiary-dark);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.signal-item:hover {
+    transform: translateY(-3px);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.7), 0 5px 15px rgba(0, 0, 0, 0.4);
+}
+
+.signal-label {
+    font-size: 0.8em;
+    color: var(--text-dim);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-weight: 500;
+    letter-spacing: 0.8px;
+}
+
+.signal-value {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: var(--text-light);
+    font-family: 'Outfit', sans-serif;
+    letter-spacing: 0.5px;
+}
+
+.signal-value[data-signal="buy"] {
+    color: var(--accent-green);
+}
+
+.signal-value[data-signal="sell"] {
+    color: var(--accent-red);
+}
+
+.signal-value[data-signal="hold"] {
+    color: var(--accent-yellow);
+}
+
+.signal-value.price {
+    color: var(--accent-yellow);
+    font-weight: 700;
+    font-size: 1.5em;
+}
+.signal-value.confidence {
+    color: var(--accent-blue);
+    font-weight: 700;
+}
+
+.error-message {
+    color: var(--accent-red);
+    font-size: 0.9em;
+    margin-left: var(--spacing-unit);
+    background-color: rgba(255, 61, 113, 0.2);
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 61, 113, 0.5);
+}
+
+/* --- Header Buttons Styling --- */
+/* Base style for all main header buttons (NEWS, Support, Login/Logout, Statistics) */
+.news-button, .support-button, .auth-button, .stats-button, .profile-button {
+    background: linear-gradient(45deg, var(--accent-blue), var(--accent-blue-light));
+    color: #0f0f1a; /* Dark text for bright background */
+    border: none;
+    padding: 12px 30px;
+    border-radius: var(--border-radius-main);
+    cursor: pointer;
+    font-size: 1.05em;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 5px 20px rgba(0, 188, 212, 0.5); /* Blue shadow for default */
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    display: flex; /* To align icon and text if you add icons */
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space between icon and text */
+}
+
+.news-button:hover, .support-button:hover, .auth-button:hover, .stats-button:hover, .profile-button:hover {
+    background: linear-gradient(45deg, var(--accent-blue-light), var(--accent-blue));
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 188, 212, 0.8);
+}
+
+/* Specific styles for Login/Logout button (override base background and shadow) */
+.auth-button.login {
+    background: linear-gradient(45deg, var(--accent-green), #00c853);
+    box-shadow: 0 5px 20px rgba(0, 230, 118, 0.5);
+}
+
+.auth-button.login:hover {
+    background: linear-gradient(45deg, #00c853, var(--accent-green));
+    box-shadow: 0 10px 25px rgba(0, 230, 118, 0.8);
+}
+
+.auth-button.logout {
+    background: linear-gradient(45deg, var(--accent-red), #d81b60);
+    box-shadow: 0 5px 20px rgba(255, 61, 113, 0.5);
+}
+
+.auth-button.logout:hover {
+    background: linear-gradient(45deg, #d81b60, var(--accent-red));
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 10px 25px rgba(255, 61, 113, 0.8);
+}
+
+/* Specific style for Statistics button */
+.stats-button {
+    background: linear-gradient(45deg, #9c27b0, #e040fb); /* Purple gradient */
+    box-shadow: 0 5px 20px rgba(156, 39, 176, 0.5);
+}
+
+.stats-button:hover {
+    background: linear-gradient(45deg, #e040fb, #9c27b0);
+    box-shadow: 0 10px 25px rgba(156, 39, 176, 0.8);
+}
+
+/* Specific style for Profile button */
+.profile-button {
+    background: linear-gradient(45deg, #8e9eab, #eef2f3); /* Silver gradient */
+    box-shadow: 0 5px 20px rgba(142, 158, 171, 0.5);
+}
+
+.profile-button:hover {
+    background: linear-gradient(45deg, #eef2f3, #8e9eab);
+    box-shadow: 0 10px 25px rgba(142, 158, 171, 0.8);
+}
+
+/* Style for the user greeting text */
+.user-greeting {
+    color: var(--text-dim);
+    font-weight: 500;
+    font-size: 0.95em;
+    white-space: nowrap;
+    padding: 0 10px;
+    border-right: 1px solid var(--border-color);
+}
+
+/* --- Header Profile Picture (New) --- */
+.header-profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-blue);
+    margin-left: -5px; /* Adjust spacing */
+}
+
+/* Main App Container Layout */
+.app-container {
+    display: flex;
+    flex: 1;
+    padding: 10px; /* ลดช่องว่างรอบๆ container หลักให้ชิดขึ้น */
+    gap: 10px; /* ลดช่องว่างระหว่าง sidebar และ main content ให้ชิดขึ้น */
+}
+
+/* Sidebar Styling */
+.App-sidebar {
+    flex: 0 0 240px;
+    background-color: var(--secondary-dark);
+    padding: 15px; /* ลด padding ภายใน sidebar */
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 4px 20px var(--shadow-color);
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+}
+
+.App-sidebar h2 {
+    margin-top: 0;
+    color: var(--accent-blue);
+    font-size: 1.8em;
+    margin-bottom: 20px; /* ลดระยะห่างใต้หัวข้อ */
+    text-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+    font-weight: 700;
+}
+
+/* --- Dropdown Selector Styling (New) --- */
+.selector-container {
+    margin-bottom: var(--spacing-unit);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.selector-container label {
+    font-size: 0.9em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 5px;
+}
+
+.custom-select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--tertiary-dark);
+    color: var(--text-light);
+    font-size: 1.1em;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22292.4%22 height=%22292.4%22%3E%3Cpath fill=%22%23a0a0a0%22 d=%22M287 69.4a17.6 17.6 0 0 0-13-5.4H18.4c-5 0-9.3 1.8-12.9 5.4A17.6 17.6 0 0 0 0 82.2c0 5 1.8 9.3 5.4 12.9l128 127.9c3.6 3.6 7.8 5.4 12.8 5.4s9.2-1.8 12.8-5.4L287 95c3.6-3.6 5.4-7.9 5.4-12.8 0-5-1.9-9.4-5.4-12.8z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 12px auto;
+}
+
+.custom-select:hover {
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.3);
+}
+
+.custom-select:focus {
+    border-color: var(--accent-blue-light);
+    box-shadow: 0 0 15px rgba(0, 188, 212, 0.5);
+}
+
+/* Main Content Area */
+.App-main {
+    flex: 1;
+    background-color: var(--secondary-dark);
+    padding: 10px; /* ลดช่องว่างภายใน main content ให้ชิดขึ้น */
+    border-radius: var(--border-radius-main);
+    box-shadow: 0 4px 20px var(--shadow-color);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    min-height: 850px; /* กำหนดความสูงขั้นต่ำเพื่อให้มีพื้นที่เพียงพอสำหรับเนื้อหา */
+}
+
+.timeframe-selector {
+    margin-bottom: 15px; /* เพิ่มระยะห่างใต้ timeframe selector */
+    padding: 0 10px; /* เพิ่ม padding ด้านข้างเล็กน้อย */
+}
+
+/* ปรับให้ label และ select ของ timeframe อยู่ในแถวเดียวกัน */
+.timeframe-selector.selector-container {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end; /* จัดไปทางขวา */
+    gap: 15px;
+}
+
+.timeframe-selector label {
+    margin-bottom: 0; /* ไม่ต้องมี margin bottom เมื่ออยู่แถวเดียวกัน */
+}
+
+.timeframe-selector .custom-select {
+    width: auto; /* ทำให้ความกว้างพอดีกับเนื้อหา */
+    min-width: 120px; /* กำหนดความกว้างขั้นต่ำ */
+}
+
+/* TradingView Widget Container */
+.tradingview-widget-container {
+    height: 600px;
+    background-color: var(--tertiary-dark);
+    border-radius: var(--border-radius-main) var(--border-radius-main) 0 0; /* ปรับมุมให้โค้งเฉพาะด้านบน */
+    overflow: hidden;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.6);
+    border: 1px solid var(--border-color); 
+    margin-bottom: 15px; /* เพิ่มระยะห่างด้านล่างเพื่อเว้นช่องให้ Component ใหม่ */
+}
+
+/* NewsModal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: var(--secondary-dark);
+    padding: calc(var(--spacing-unit) * 1.8);
+    border-radius: var(--border-radius-main);
+    max-width: 85vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    color: var(--text-light);
+    box-shadow: 0 15px 40px var(--shadow-color);
+    animation: fadeInScale 0.5s ease-out;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modal-content h2 {
+    color: var(--accent-blue);
+    margin-bottom: calc(var(--spacing-unit) * 1.8);
+    font-size: 2.2em;
+    text-shadow: 0 0 10px rgba(0, 188, 212, 0.6);
+    font-weight: 700;
+    text-align: center;
+}
+
+.news-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-unit);
+}
+
+.news-item {
+    background: var(--tertiary-dark);
+    border-radius: var(--border-radius-main);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.news-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 35px var(--shadow-color);
+    background-color: #38385d;
+    border-color: var(--accent-blue);
+}
+
+.news-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.news-item-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.news-item h3 {
+    font-size: 1.4em;
+    line-height: 1.4;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.news-item h3 a {
+    color: var(--text-light);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.news-item h3 a:hover {
+    color: var(--accent-blue);
+}
+
+.news-description {
+    font-size: 0.95em;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+}
+
+.news-source-date {
+    font-size: 0.85em;
+    color: #888;
+    margin-top: auto;
+}
+
+.close-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 35px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.close-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--accent-blue-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .App-header {
+        padding: 15px;
+        gap: 15px;
+    }
+    .ai-signal-display {
+        font-size: 0.95em;
+        gap: 10px;
+        justify-content: center;
+    }
+    .signal-item {
+        padding: 8px 12px;
+    }
+    .signal-label {
+        font-size: 0.7em;
+    }
+    .signal-value {
+        font-size: 1.1em;
+    }
+    .App-sidebar {
+        flex: 0 0 200px;
+        padding: 15px;
+    }
+    .App-sidebar h2 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+    .symbol-selector-buttons button {
+        padding: 10px 15px;
+        font-size: 0.95em;
+    }
+    .app-container {
+        padding: 15px;
+        gap: 15px;
+    }
+    .App-main {
+        padding: 15px;
+    }
+    .timeframe-selector button {
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .tradingview-widget-container {
+        height: 500px;
+    }
+    .news-list {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .App-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px 10px;
+    }
+
+    .header-left, .header-right {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .ai-signal-display {
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+    }
+
+    .signal-item {
+        width: 95%;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 15px;
+    }
+    .signal-label {
+        margin-bottom: 0;
+        font-size: 0.8em;
+    }
+    .signal-value {
+        font-size: 1.2em;
+    }
+
+    .app-container {
+        flex-direction: column;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .App-sidebar {
+        width: auto;
+        flex: none;
+        max-height: none;
+        margin-bottom: 10px;
+        padding: 15px;
+    }
+    .App-sidebar h2 {
+        font-size: 1.6em;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+    .symbol-selector-buttons button {
+        padding: 12px 10px;
+        font-size: 1em;
+    }
+
+    .App-main {
+        width: auto;
+        flex: none;
+        padding: 10px;
+    }
+
+    .timeframe-selector {
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 8px;
+        gap: 8px;
+    }
+    .timeframe-selector button {
+        padding: 6px 10px;
+        font-size: 0.85em;
+    }
+
+    .tradingview-widget-container {
+        height: 380px;
+        margin-bottom: 15px;
+    }
+
+    .news-list {
+        grid-template-columns: 1fr;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
+    .modal-content h2 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+    }
+    .news-image {
+        height: 180px;
+    }
+    .news-item h3 {
+        font-size: 1.2em;
+    }
+    .news-description {
+        font-size: 0.9em;
+    }
+}
+
+/* Model Selector specific styles (ถ้ามีการใช้ในอนาคต) */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.model-selector { /* ถ้ามีการใช้ในอนาคต */
+    display: flex;
+    gap: 10px;
+    background-color: var(--tertiary-dark);
+    padding: 8px 12px;
+    border-radius: var(--border-radius-main);
+    border: 1px solid var(--border-color);
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.4);
+}
+
+.model-selector label { /* ถ้ามีการใช้ในอนาคต */
+    display: flex;
+    align-items: center;
+    color: var(--text-light);
+    font-size: 0.95em;
+    cursor: pointer;
+    gap: 5px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+.model-selector label:hover { /* ถ้ามีการใช้ในอนาคต */
+    color: var(--accent-blue-light);
+    text-shadow: 0 0 8px rgba(0, 188, 212, 0.5);
+}
+
+.model-selector input[type="radio"] { /* ถ้ามีการใช้ในอนาคต */
+    margin-right: 0px;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--accent-blue);
+    border-radius: 50%;
+    outline: none;
+    transition: all 0.3s ease;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.model-selector input[type="radio"]:checked { /* ถ้ามีการใช้ในอนาคต */
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue-light);
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.8);
+}
+
+.model-selector input[type="radio"]:checked::before { /* ถ้ามีการใช้ในอนาคต */
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: var(--secondary-dark);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: background-color 0.3s ease;
+}
+
+.model-selector input[type="radio"]:hover { /* ถ้ามีการใช้ในอนาคต */
+    border-color: var(--accent-blue-light);
+    box-shadow: 0 0 5px rgba(0, 188, 212, 0.4);
+}
+
+/* --- Trade Signal Details Styling (ถ้ามี component TradeSignalDetails.js) --- */
+.trade-details-container {
+    background-color: var(--secondary-dark);
+    padding: 10px; /* ลดช่องว่างภายในส่วนแสดงผลสัญญาณให้ชิดขึ้น */
+    border-radius: 0 0 var(--border-radius-main) var(--border-radius-main); /* ปรับมุมให้โค้งเฉพาะด้านล่าง */
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transition: all 0.3s ease;
+    text-align: center;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-top: none; /* ลบเส้นขอบด้านบนเพื่อให้ดูกลืนไปกับกราฟ */
+}
+
+.trade-details-container.loading,
+.trade-details-container.no-signal {
+    color: var(--text-dim);
+    font-style: italic;
+}
+
+.trade-details-container.buy {
+    border-left: 5px solid var(--accent-green);
+}
+
+.trade-details-container.sell {
+    border-left: 5px solid var(--accent-red);
+}
+
+.trade-details-title {
+    margin-top: 0;
+    margin-bottom: 15px; /* ลดช่องว่างใต้หัวข้อรายละเอียด */
+    font-size: 1.4em;
+    font-weight: 600;
+    color: var(--text-light);
+}
+
+.trade-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px; /* ลดช่องว่างระหว่าง item ใน grid ให้ชิดขึ้น */
+}
+
+.trade-detail-item {
+    background-color: var(--tertiary-dark);
+    padding: 12px; /* ลด padding ของ item */
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);
+}
+
+.trade-detail-label {
+    font-size: 0.9em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trade-detail-value {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--text-light);
+    font-family: 'Fira Code', monospace;
+}
+
+.trade-detail-value.signal-buy {
+    color: var(--accent-green);
+    text-shadow: 0 0 8px var(--accent-green);
+}
+
+.trade-detail-value.signal-sell {
+    color: var(--accent-red);
+    text-shadow: 0 0 8px var(--accent-red);
+}
+
+/* --- Trade Execution Section --- */
+.trade-execution-section {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+.lot-size-input-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lot-size-input-group label {
+    font-size: 1em;
+    color: var(--text-dim);
+}
+
+.lot-size-input-group input {
+    width: 80px;
+    padding: 10px;
+    background-color: var(--background-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 8px;
+    font-size: 1.1em;
+    text-align: center;
+    font-family: 'Fira Code', monospace;
+}
+
+.execute-trade-button {
+    padding: 12px 35px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+}
+
+.execute-trade-button.buy {
+    background: linear-gradient(45deg, var(--accent-green), #00c853);
+    box-shadow: 0 5px 15px rgba(0, 230, 118, 0.4);
+}
+
+.execute-trade-button.sell {
+    background: linear-gradient(45deg, var(--accent-red), #d81b60);
+    box-shadow: 0 5px 15px rgba(255, 61, 113, 0.4);
+}
+
+
+/* --- Login Prompt Screen --- */
+.login-prompt-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    text-align: center;
+    padding: 40px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+.login-prompt-box {
+    background-color: var(--secondary-dark);
+    padding: 40px 50px;
+    border-radius: var(--border-radius-main);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px var(--shadow-color);
+    max-width: 600px;
+}
+
+.login-prompt-box h2 {
+    font-size: 2.5em;
+    color: var(--accent-blue);
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.login-prompt-box p {
+    font-size: 1.1em;
+    color: var(--text-dim);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.login-prompt-box .auth-button {
+    padding: 15px 40px;
+    font-size: 1.2em;
+}
+
+.register-prompt {
+    margin-top: 25px;
+    font-size: 0.9em !important;
+    color: var(--text-dim);
+}
+
+.switch-link {
+    background: none;
+    border: none;
+    color: var(--accent-blue);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 1em;
+    padding: 0;
+}
+
+.switch-link:hover {
+    color: var(--accent-blue-light);
+}
+
+/* Fullscreen Loading Spinner */
+.loading-fullscreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--background-dark);
+    font-size: 1.5em;
+    color: var(--accent-blue);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Fullscreen Loading Spinner */
+.loading-fullscreen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    background-color: var(--background-dark);
+    font-size: 1.5em;
+    color: var(--accent-blue);
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
