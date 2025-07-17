@@ -20,11 +20,12 @@
                 <ul class="nav-list">
                     <li><a href="#hero">หน้าหลัก</a></li>
                     <li><a href="#featured">สถานที่แนะนำ</a></li>
-                    <li><a href="#">บทความ</a></li>
-                    <li><a href="#">คาเฟ่</a></li>
-                    <li><a href="#">ที่พัก</a></li>
+                    <li><a href="#attractions" data-category="attraction">สถานที่ท่องเที่ยว</a></li>
+                    <li><a href="#cafes" data-category="cafe">คาเฟ่</a></li>
+                    <li><a href="#accommodations" data-category="accommodation">ที่พัก</a></li>
+                    <li><a href="#restaurants" data-category="restaurant">ร้านอาหาร</a></li>
                     <li><a href="#about">เกี่ยวกับเรา</a></li>
-                    <li><a href="#">ติดต่อ</a></li>
+                    <li><a href="#contact">ติดต่อ</a></li>
                 </ul>
             </nav>
         </div>
@@ -46,29 +47,49 @@
     <section id="featured" class="featured-destinations">
         <div class="container">
             <h2>สถานที่แนะนำยอดนิยมในบึงกาฬ</h2>
-            <div class="destination-grid">
-                <div class="destination-card">
-                    <img src="https://via.placeholder.com/400x300?text=บึงกาฬสถานที่แนะนำ1" alt="บึงกาฬสถานที่แนะนำ1">
-                    <h3>หินสามวาฬ</h3>
-                    <p>ชมวิวทิวทัศน์สุดอลังการที่จุดชมวิวหินสามวาฬ</p>
-                    <a href="#" class="btn btn-secondary">อ่านต่อ</a>
-                </div>
-                <div class="destination-card">
-                    <img src="https://via.placeholder.com/400x300?text=คาเฟ่บึงกาฬ" alt="คาเฟ่บึงกาฬ">
-                    <h3>คาเฟ่ริมโขงบึงกาฬ</h3>
-                    <p>จิบกาแฟสบายๆ ริมแม่น้ำโขง</p>
-                    <a href="#" class="btn btn-secondary">อ่านต่อ</a>
-                </div>
-                <div class="destination-card">
-                    <img src="https://via.placeholder.com/400x300?text=ที่พักบึงกาฬ" alt="ที่พักบึงกาฬ">
-                    <h3>ที่พักใกล้หนองคาย</h3>
-                    <p>ผ่อนคลายกับที่พักท่ามกลางธรรมชาติ</p>
-                    <a href="#" class="btn btn-secondary">อ่านต่อ</a>
-                </div>
+            <div class="category-tabs">
+                <button class="tab-btn active" data-category="all">ทั้งหมด</button>
+                <button class="tab-btn" data-category="attraction">สถานที่ท่องเที่ยว</button>
+                <button class="tab-btn" data-category="cafe">คาเฟ่</button>
+                <button class="tab-btn" data-category="accommodation">ที่พัก</button>
+                <button class="tab-btn" data-category="restaurant">ร้านอาหาร</button>
+            </div>
+            <div class="destination-grid" id="destination-grid">
+                <!-- Content will be loaded dynamically -->
+                <div class="loading">กำลังโหลด...</div>
             </div>
             <div class="view-all">
-                <a href="#" class="btn btn-primary">ดูสถานที่ทั้งหมด</a>
+                <button class="btn btn-primary" id="load-more">โหลดเพิ่มเติม</button>
             </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Content Sections -->
+    <section id="attractions" class="category-section hidden">
+        <div class="container">
+            <h2>สถานที่ท่องเที่ยว</h2>
+            <div class="destination-grid" id="attractions-grid"></div>
+        </div>
+    </section>
+
+    <section id="cafes" class="category-section hidden">
+        <div class="container">
+            <h2>คาเฟ่น่านั่ง</h2>
+            <div class="destination-grid" id="cafes-grid"></div>
+        </div>
+    </section>
+
+    <section id="accommodations" class="category-section hidden">
+        <div class="container">
+            <h2>ที่พักแนะนำ</h2>
+            <div class="destination-grid" id="accommodations-grid"></div>
+        </div>
+    </section>
+
+    <section id="restaurants" class="category-section hidden">
+        <div class="container">
+            <h2>ร้านอาหารอร่อย</h2>
+            <div class="destination-grid" id="restaurants-grid"></div>
         </div>
     </section>
 
@@ -77,6 +98,39 @@
             <h2>เกี่ยวกับเรา</h2>
             <p>พวกเราคือทีมงานที่รักการเดินทางและต้องการแบ่งปันประสบการณ์ดีๆ ให้กับทุกคน ไม่ว่าจะเป็นสถานที่ท่องเที่ยวที่ไม่ควรพลาด, ร้านอาหารอร่อยๆ, คาเฟ่บรรยากาศดี, หรือที่พักที่น่าสนใจ เรามุ่งมั่นที่จะเป็นแหล่งรวมข้อมูลสำหรับนักเดินทางทุกคนที่ต้องการสำรวจบึงกาฬ</p>
             <p>ติดตามเราเพื่อไม่พลาดทุกการอัปเดต!</p>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>ติดต่อเรา</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>ช่องทางการติดต่อ</h3>
+                    <div class="contact-item">
+                        <i class="fab fa-facebook"></i>
+                        <a href="https://www.facebook.com/slo.sko.3/" target="_blank" rel="noopener">Facebook: ที่นี่บึงกาฬ</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email: thitiwoot11111@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>โทร: 065-991-0940</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>ที่อยู่: จังหวัดบึงกาฬ ประเทศไทย</span>
+                    </div>
+                </div>
+                <div class="weather-widget">
+                    <h3>สภาพอากาศบึงกาฬ</h3>
+                    <div id="weather-info">
+                        <div class="loading">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -109,6 +163,7 @@
         </div>
     </footer>
 
+    <script src="api.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
