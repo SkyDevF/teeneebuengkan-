@@ -173,22 +173,27 @@ async function loadAllDestinations() {
     try {
         showLoading();
         
-        // ดึงข้อมูลจาก API ที่เชื่อมต่อกับฐานข้อมูล
-        const response = await fetch('/api/destinations');
+        // ใช้ข้อมูลจาก BuengkanAPI โดยตรง (สำหรับ GitHub Pages)
+        const attractions = await buengkanAPI.getAttractions();
+        const cafes = await buengkanAPI.getCafes();
+        const accommodations = await buengkanAPI.getAccommodations();
+        const restaurants = await buengkanAPI.getRestaurants();
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+        // รวมข้อมูลทั้งหมด
+        allDestinations = [
+            ...attractions,
+            ...cafes,
+            ...accommodations,
+            ...restaurants
+        ];
         
-        allDestinations = await response.json();
-        
-        console.log('Loaded destinations from database:', allDestinations.length, 'items');
+        console.log('Loaded destinations from static data:', allDestinations.length, 'items');
         
         // Display initial content
         displayDestinations('all');
         
     } catch (error) {
-        console.error('Error loading destinations from database:', error);
+        console.error('Error loading destinations:', error);
         showError();
     }
 }
@@ -563,34 +568,7 @@ async function handleContactSubmit(e) {
     submitBtn.disabled = true;
     
     try {
-        // Send message to API
-        const response = await fetch('/api/contact', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                email: email,
-                message: message
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            // Show success message
-            showSuccessMessage();
-            
-            // Reset form
-            document.getElementById('contactForm').reset();
-        } else {
-            throw new Error(result.error || 'เกิดข้อผิดพลาดในการส่งข้อความ');
-        }
-    } catch (error) {
-        console.error('Error sending message:', error);
-        
-        // Fallback to localStorage if API fails
+        // บันทึกข้อความใน localStorage (สำหรับ GitHub Pages)
         const messageData = {
             id: Date.now().toString(),
             name: name,
@@ -600,12 +578,19 @@ async function handleContactSubmit(e) {
             status: 'new'
         };
         
-        const existingMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+        const existingMessages = JSON.parse(localStorage.getItem('contactMessages') || '[]');
         existingMessages.unshift(messageData);
-        localStorage.setItem('chatMessages', JSON.stringify(existingMessages));
+        localStorage.setItem('contactMessages', JSON.stringify(existingMessages));
         
-        showSuccessMessage('ส่งข้อความเรียบร้อยแล้ว (บันทึกในเครื่อง)');
+        // แสดงข้อความสำเร็จ
+        showSuccessMessage('ส่งข้อความเรียบร้อยแล้ว! ข้อความของคุณได้รับการบันทึกแล้ว');
+        
+        // รีเซ็ตฟอร์ม
         document.getElementById('contactForm').reset();
+        
+    } catch (error) {
+        console.error('Error saving message:', error);
+        alert('เกิดข้อผิดพลาดในการส่งข้อความ กรุณาลองใหม่อีกครั้ง');
     } finally {
         // Restore button state
         submitBtn.innerHTML = originalText;
