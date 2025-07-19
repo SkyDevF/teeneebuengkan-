@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ที่นี่บึงกาฬ - เว็บไซต์ท่องเที่ยวบึงกาฬ</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </button>
+
+    <header class="main-header">
+        <div class="container">
+            <a href="#" class="logo">ที่นี่บึงกาฬ</a>
+            <nav class="main-nav">
+                <button type="button" class="menu-toggle" aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <ul class="nav-list">
+                    <li><a href="#hero">หน้าหลัก</a></li>
+                    <li><a href="#featured">สถานที่แนะนำ</a></li>
+                    <li><a href="#about">เกี่ยวกับเรา</a></li>
+                    <li><a href="#contact">ติดต่อ</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="hero" class="hero-section">
+        <div class="hero-background-slideshow" id="slide1"></div>
+        <div class="hero-background-slideshow" id="slide2"></div>
+        <div class="hero-background-slideshow" id="slide3"></div>
+        <div class="hero-background-slideshow" id="slide4"></div>
+
+        <div class="hero-content">
+            <h1>สัมผัสเสน่ห์ธรรมชาติและวัฒนธรรมแห่งบึงกาฬ</h1>
+            <p>รวมแหล่งท่องเที่ยว คาเฟ่ ร้านอาหาร และที่พักเฉพาะจังหวัดบึงกาฬ</p>
+            <a href="#featured" class="btn btn-primary">เริ่มต้นเดินทาง</a>
+        </div>
+    </section>
+
+    <section id="featured" class="featured-destinations">
+        <div class="container">
+            <h2>สถานที่แนะนำยอดนิยมในบึงกาฬ</h2>
+            <div class="category-tabs">
+                <button type="button" class="tab-btn active" data-category="all">ทั้งหมด</button>
+                <button type="button" class="tab-btn" data-category="attraction">สถานที่ท่องเที่ยว</button>
+                <button type="button" class="tab-btn" data-category="cafe">คาเฟ่</button>
+                <button type="button" class="tab-btn" data-category="accommodation">ที่พัก</button>
+                <button type="button" class="tab-btn" data-category="restaurant">ร้านอาหาร</button>
+            </div>
+            <div class="destination-grid" id="destination-grid">
+                <!-- Content will be loaded dynamically -->
+                <div class="loading">กำลังโหลด...</div>
+            </div>
+            <div class="view-all">
+                <button type="button" class="btn btn-primary" id="load-more">โหลดเพิ่มเติม</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dynamic Content Sections -->
+    <section id="attractions" class="category-section hidden">
+        <div class="container">
+            <h2>สถานที่ท่องเที่ยว</h2>
+            <div class="destination-grid" id="attractions-grid"></div>
+        </div>
+    </section>
+
+    <section id="cafes" class="category-section hidden">
+        <div class="container">
+            <h2>คาเฟ่น่านั่ง</h2>
+            <div class="destination-grid" id="cafes-grid"></div>
+        </div>
+    </section>
+
+    <section id="accommodations" class="category-section hidden">
+        <div class="container">
+            <h2>ที่พักแนะนำ</h2>
+            <div class="destination-grid" id="accommodations-grid"></div>
+        </div>
+    </section>
+
+    <section id="restaurants" class="category-section hidden">
+        <div class="container">
+            <h2>ร้านอาหารอร่อย</h2>
+            <div class="destination-grid" id="restaurants-grid"></div>
+        </div>
+    </section>
+
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2>เกี่ยวกับเรา</h2>
+            <p>สวัสดีครับ ผมนายธิติวุฒิ ประเสริฐศิลป์ เป็นคนจังหวัดบึงกาฬ
+            <p>เว็บไซต์นี้จะนำเสนอสถานที่ท่องเที่ยว คาเฟ่ ที่พัก ร้านอาหาร </p>
+            <p>ติดตามเราเพื่อไม่พลาดทุกการอัปเดต!</p>
+        </div>
+    </section>
+
+    <section id="contact" class="contact-section">
+        <div class="container">
+            <h2>ติดต่อเรา</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>ช่องทางการติดต่อ</h3>
+                    <div class="contact-item">
+                        <i class="fab fa-facebook"></i>
+                        <a href="https://www.facebook.com/slo.sko.3/" target="_blank" rel="noopener">Facebook:
+                            ที่นี่บึงกาฬ</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email: thitiwoot11111@gmail.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <span>โทร: 065-991-0940</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>ที่อยู่: จังหวัดบึงกาฬ ประเทศไทย</span>
+                    </div>
+
+                    <!-- ฟอร์มสอบถาม -->
+                    <div class="contact-form">
+                        <h3><i class="fas fa-comments"></i> ส่งข้อความสอบถาม</h3>
+                        <form id="contactForm">
+                            <div class="form-group has-icon name-field">
+                                <label for="contactName">ชื่อของคุณ</label>
+                                <input type="text" id="contactName" placeholder="กรุณากรอกชื่อของคุณ..." required>
+                            </div>
+                            <div class="form-group has-icon email-field">
+                                <label for="contactEmail">อีเมล</label>
+                                <input type="email" id="contactEmail" placeholder="example@email.com" required>
+                            </div>
+                            <div class="form-group has-icon message-field">
+                                <label for="contactMessage">ข้อความ</label>
+                                <textarea id="contactMessage" placeholder="เขียนข้อความที่ต้องการสอบถาม..." rows="4"
+                                    required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> ส่งข้อความ
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="weather-widget">
+                    <h3>สภาพอากาศบึงกาฬ</h3>
+                    <div id="weather-info">
+                        <div class="loading">กำลังโหลด...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section about">
+                    <h3>ที่นี่บึงกาฬ</h3>
+                    <p>เว็บไซต์สำหรับนักเดินทาง ที่รวบรวมข้อมูลสถานที่ท่องเที่ยว คาเฟ่ ร้านอาหาร
+                        และที่พักเฉพาะจังหวัดบึงกาฬ</p>
+                </div>
+                <div class="footer-section links">
+                    <h3>ลิงก์ด่วน</h3>
+                    <ul>
+                        <li><a href="#hero">หน้าหลัก</a></li>
+                        <li><a href="#featured">สถานที่แนะนำ</a></li>
+                        <li><a href="#about">เกี่ยวกับเรา</a></li>
+                        <li><a href="#">นโยบายความเป็นส่วนตัว</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section social">
+                    <h3>ติดตามเรา</h3>
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2025 ที่นี่บึงกาฬ. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Popup -->
+    <div id="destination-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-header">
+                <img id="modal-image" src="" alt="">
+                <div class="modal-title">
+                    <h2 id="modal-name"></h2>
+                    <div class="modal-rating">
+                        <span id="modal-stars"></span>
+                        <span id="modal-rating-text"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-info">
+                    <div class="info-section">
+                        <h3><i class="fas fa-info-circle"></i> รายละเอียด</h3>
+                        <p id="modal-description"></p>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-map-marker-alt"></i> ที่อยู่</h3>
+                        <p id="modal-location">จังหวัดบึงกาฬ ประเทศไทย</p>
+                    </div>
+                    <div class="info-section">
+                        <h3><i class="fas fa-clock"></i> เวลาเปิด-ปิด</h3>
+                        <p id="modal-hours">08:00 - 18:00 น. (ทุกวัน)</p>
+                    </div>
+                    <div class="info-section" id="modal-price-section">
+                        <h3><i class="fas fa-tag"></i> ราคา</h3>
+                        <p id="modal-price"></p>
+                    </div>
+                </div>
+                <div class="modal-map">
+                    <h3><i class="fas fa-map"></i> แผนที่</h3>
+                    <div id="map-container">
+                        <iframe id="google-map" width="100%" height="300" allowfullscreen="" loading="lazy"
+                            title="แผนที่สถานที่">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="shareDestination()">
+                    <i class="fas fa-share"></i> แชร์
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="getDirections()">
+                    <i class="fas fa-directions"></i> เส้นทาง
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
