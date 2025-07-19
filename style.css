@@ -24,7 +24,7 @@
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
     --gradient-secondary: linear-gradient(135deg, #6D28D9 0%, #8B5CF6 100%);
-    --gradient-hero: linear-gradient(135deg, rgba(139, 92, 246, 0.9) 0%, rgba(168, 85, 247, 0.8) 50%, rgba(192, 132, 252, 0.7) 100%);
+    --gradient-hero: linear-gradient(135deg, rgba(139, 92, 246, 0.4) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(192, 132, 252, 0.2) 100%);
     --gradient-card: linear-gradient(145deg, rgba(139, 92, 246, 0.05) 0%, rgba(192, 132, 252, 0.05) 100%);
 
     /* Shadows */

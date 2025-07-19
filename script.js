@@ -3,6 +3,8 @@ let currentPage = 'hero';
 let currentCategory = 'all';
 let allDestinations = [];
 let currentDestination = null;
+let displayedCount = 6; // จำนวนที่แสดงในครั้งแรก
+let itemsPerLoad = 6; // จำนวนที่โหลดเพิ่มในแต่ละครั้ง
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
@@ -210,10 +212,19 @@ function displayDestinations(category) {
 
     if (filteredDestinations.length === 0) {
         grid.innerHTML = '<div class="no-results">ไม่พบข้อมูลในหมวดหมู่นี้</div>';
+        hideLoadMoreButton();
         return;
     }
 
-    grid.innerHTML = filteredDestinations.map(dest => createDestinationCard(dest)).join('');
+    // รีเซ็ตจำนวนที่แสดงเมื่อเปลี่ยนหมวดหมู่
+    displayedCount = 6;
+    
+    // แสดงเฉพาะ 6 ช่องแรก
+    const destinationsToShow = filteredDestinations.slice(0, displayedCount);
+    grid.innerHTML = destinationsToShow.map(dest => createDestinationCard(dest)).join('');
+    
+    // แสดง/ซ่อนปุ่มโหลดเพิ่มเติม
+    updateLoadMoreButton(filteredDestinations.length);
     
     // Add animation
     setTimeout(() => {
@@ -233,7 +244,10 @@ function createDestinationCard(destination) {
     
     return `
         <div class="destination-card page-transition">
-            <img src="${imageUrl}" alt="${destination.title}" loading="lazy" onerror="handleImageError(this, '${destination.title}')">
+            <img src="${imageUrl}" alt="${destination.title}" loading="lazy" 
+                 onclick="showDestinationDetail(${destination.id}, '${destination.category}')"
+                 style="cursor: pointer;"
+                 onerror="handleImageError(this, '${destination.title}')">
             <div class="card-content">
                 <h3>${destination.title}</h3>
                 <p>${destination.description}</p>
@@ -360,12 +374,11 @@ function getLocationInfo(destination) {
 }
 
 function loadGoogleMap(destination) {
-    // ใช้พิกัดจริงของสถานที่
-    const lat = destination.latitude || 18.3609;
-    const lng = destination.longitude || 103.6469;
+    // ใช้ชื่อสถานที่และที่อยู่เพื่อให้ Google Maps หาเส้นทางได้ดีขึ้น
+    const placeName = encodeURIComponent(`${destination.title} ${destination.address || 'บึงกาฬ'}`);
     
-    // สร้าง URL สำหรับ Google Maps โดยไม่ต้องใช้ API Key
-    const mapUrl = `https://www.google.com/maps?q=${lat},${lng}&hl=th&z=15&output=embed`;
+    // สร้าง URL สำหรับ Google Maps โดยใช้ชื่อสถานที่
+    const mapUrl = `https://www.google.com/maps?q=${placeName}&hl=th&z=15&output=embed`;
     
     const mapFrame = document.getElementById('google-map');
     if (mapFrame) {
@@ -407,10 +420,9 @@ function shareDestination() {
 function getDirections() {
     if (!currentDestination) return;
     
-    // ใช้พิกัดจริงของสถานที่ปัจจุบัน
-    const lat = currentDestination.latitude || 18.3609;
-    const lng = currentDestination.longitude || 103.6469;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    // ใช้ชื่อสถานที่และที่อยู่เพื่อให้ Google Maps หาเส้นทางได้ดีขึ้น
+    const placeName = encodeURIComponent(`${currentDestination.title} ${currentDestination.address || 'บึงกาฬ'}`);
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${placeName}`;
     window.open(url, '_blank');
 }
 
@@ -516,20 +528,80 @@ function setupPageTransitions() {
     });
 }
 
-// Load more functionality
-document.addEventListener('DOMContentLoaded', () => {
+// ฟังก์ชันสำหรับจัดการปุ่มโหลดเพิ่มเติม
+function updateLoadMoreButton(totalItems) {
+    const loadMoreBtn = document.getElementById('load-more');
+    if (!loadMoreBtn) return;
+    
+    if (displayedCount >= totalItems) {
+        hideLoadMoreButton();
+    } else {
+        showLoadMoreButton();
+        loadMoreBtn.onclick = loadMoreDestinations;
+    }
+}
+
+function showLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more');
     if (loadMoreBtn) {
-        loadMoreBtn.addEventListener('click', () => {
-            // Simulate loading more content
-            loadMoreBtn.textContent = 'กำลังโหลด...';
-            setTimeout(() => {
-                loadMoreBtn.textContent = 'โหลดเพิ่มเติม';
-                alert('ข้อมูลทั้งหมดแสดงแล้ว!');
-            }, 1000);
-        });
+        loadMoreBtn.style.display = 'inline-block';
+        loadMoreBtn.textContent = 'โหลดเพิ่มเติม';
     }
+}
 
+function hideLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more');
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'none';
+    }
+}
+
+function loadMoreDestinations() {
+    const grid = document.getElementById('destination-grid');
+    const loadMoreBtn = document.getElementById('load-more');
+    if (!grid || !loadMoreBtn) return;
+    
+    // แสดงสถานะกำลังโหลด
+    loadMoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังโหลด...';
+    loadMoreBtn.disabled = true;
+    
+    setTimeout(() => {
+        // กรองข้อมูลตามหมวดหมู่ปัจจุบัน
+        let filteredDestinations = allDestinations;
+        if (currentCategory !== 'all') {
+            filteredDestinations = allDestinations.filter(dest => dest.category === currentCategory);
+        }
+        
+        // คำนวณข้อมูลที่จะแสดงเพิ่ม
+        const nextCount = displayedCount + itemsPerLoad;
+        const newDestinations = filteredDestinations.slice(displayedCount, nextCount);
+        
+        // เพิ่มข้อมูลใหม่เข้าไปใน grid
+        const newCards = newDestinations.map(dest => createDestinationCard(dest)).join('');
+        grid.insertAdjacentHTML('beforeend', newCards);
+        
+        // อัปเดตจำนวนที่แสดง
+        displayedCount = nextCount;
+        
+        // เพิ่มแอนิเมชันให้การ์ดใหม่
+        const newCardElements = grid.querySelectorAll('.destination-card:not(.active)');
+        newCardElements.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('active');
+            }, index * 100);
+        });
+        
+        // อัปเดตสถานะปุ่ม
+        updateLoadMoreButton(filteredDestinations.length);
+        loadMoreBtn.disabled = false;
+        
+        // ไม่แสดงข้อความแจ้งเตือนเมื่อโหลดครบแล้ว
+        // (เอาแจ้งเตือนออกตามที่ผู้ใช้ขอ)
+    }, 800); // หน่วงเวลาเล็กน้อยเพื่อให้ดูเป็นธรรมชาติ
+}
+
+// Load more functionality
+document.addEventListener('DOMContentLoaded', () => {
     // Setup contact form
     setupContactForm();
 });
