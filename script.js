@@ -343,6 +343,9 @@ function showDestinationDetail(id, category) {
         priceSection.style.display = 'none';
     }
     
+    // Load reviews
+    loadReviews(destination);
+    
     // Load map
     loadGoogleMap(destination);
     
@@ -371,6 +374,152 @@ function getLocationInfo(destination) {
     };
     
     return locations[destination.category] || locations.attraction;
+}
+
+async function loadReviews(destination) {
+    const reviewsContainer = document.getElementById('reviews-container');
+    const reviewsSection = document.getElementById('modal-reviews-section');
+    
+    if (!reviewsContainer || !reviewsSection) return;
+    
+    // แสดง loading state
+    reviewsSection.style.display = 'block';
+    reviewsContainer.innerHTML = '<div class="loading-reviews"><i class="fas fa-spinner fa-spin"></i> กำลังโหลดรีวิว...</div>';
+    
+    try {
+        // ลองดึงรีวิวจาก Google Places API ก่อน
+        const googleReviews = await fetchGooglePlacesReviews(destination);
+        
+        if (googleReviews && googleReviews.length > 0) {
+            displayReviews(googleReviews, reviewsContainer);
+        } else {
+            // หากไม่มีรีวิวจาก API ให้ใช้ข้อมูล mock
+            const mockReviews = destination.reviews || [];
+            if (mockReviews.length > 0) {
+                displayReviews(mockReviews, reviewsContainer);
+            } else {
+                reviewsSection.style.display = 'none';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading reviews:', error);
+        
+        // หากเกิดข้อผิดพลาด ให้ใช้ข้อมูล mock
+        const mockReviews = destination.reviews || [];
+        if (mockReviews.length > 0) {
+            displayReviews(mockReviews, reviewsContainer);
+        } else {
+            reviewsSection.style.display = 'none';
+        }
+    }
+}
+
+function displayReviews(reviews, container) {
+    const reviewsHTML = reviews.map(review => {
+        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+        const profilePhoto = review.profile_photo_url || null;
+        
+        return `
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-author">
+                        <div class="author-avatar">
+                            ${profilePhoto ? 
+                                `<img src="${profilePhoto}" alt="${review.author}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                 <i class="fas fa-user" style="display: none;"></i>` :
+                                `<i class="fas fa-user"></i>`
+                            }
+                        </div>
+                        <div class="author-info">
+                            <div class="author-name">${review.author}</div>
+                            <div class="review-date">${review.date || review.relative_time_description || 'ไม่ระบุวันที่'}</div>
+                        </div>
+                    </div>
+                    <div class="review-rating">
+                        <span class="stars">${stars}</span>
+                    </div>
+                </div>
+                <div class="review-comment">
+                    ${review.comment || review.text || 'ไม่มีความคิดเห็น'}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = reviewsHTML;
+}
+
+async function fetchGooglePlacesReviews(destination) {
+    try {
+        // ลองเรียก API ผ่าน server proxy ก่อน
+        const response = await fetch('/api/places/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: destination.title,
+                address: destination.address || 'บึงกาฬ',
+                lat: destination.latitude,
+                lng: destination.longitude
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.reviews && data.reviews.length > 0) {
+                console.log('Successfully fetched reviews from Google Places API');
+                return data.reviews;
+            }
+        }
+        
+        // หากไม่สามารถเรียก API ได้ ให้ใช้ข้อมูล mock
+        console.log('API not available, using enhanced mock data');
+        return await mockGooglePlacesResponse(destination);
+        
+    } catch (error) {
+        console.error('Error fetching Google Places reviews:', error);
+        // ใช้ข้อมูล mock เป็น fallback
+        return await mockGooglePlacesResponse(destination);
+    }
+}
+
+function getGooglePlacesApiKey() {
+    // ในการใช้งานจริง ควรเก็บ API key ใน environment variable หรือ config file
+    // สำหรับ demo นี้จะ return null เพื่อใช้ข้อมูล mock
+    return null; // return 'YOUR_GOOGLE_PLACES_API_KEY';
+}
+
+async function mockGooglePlacesResponse(destination) {
+    // จำลองข้อมูลรีวิวจาก Google Places API
+    const mockApiReviews = [
+        {
+            author: 'Google User',
+            rating: 5,
+            text: `${destination.title} เป็นสถานที่ที่ยอดเยี่ยมมาก! แนะนำให้มาเยี่ยมชม`,
+            relative_time_description: '1 เดือนที่แล้ว',
+            profile_photo_url: null
+        },
+        {
+            author: 'นักท่องเที่ยว',
+            rating: 4,
+            text: 'สถานที่สวยงาม บรรยากาศดี เหมาะสำหรับการพักผ่อน',
+            relative_time_description: '2 สัปดาห์ที่แล้ว',
+            profile_photo_url: null
+        },
+        {
+            author: 'Local Guide',
+            rating: 4,
+            text: 'ประทับใจมาก คุณภาพดี ราคาเหมาะสม จะกลับมาอีก',
+            relative_time_description: '3 สัปดาห์ที่แล้ว',
+            profile_photo_url: null
+        }
+    ];
+    
+    // จำลองความล่าช้าของ API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    return mockApiReviews;
 }
 
 function loadGoogleMap(destination) {
