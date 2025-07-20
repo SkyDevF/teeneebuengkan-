@@ -504,28 +504,38 @@ async function fetchGooglePlacesDirectly(destination) {
         }
         
         // ค้นหาสถานที่ด้วย Text Search API
-        const searchQuery = encodeURIComponent(`${destination.title} บึงกาฬ ประเทศไทย`);
+        const searchQuery = encodeURIComponent(`${destination.title} ${destination.address || 'บึงกาฬ'}`);
         
         // ใช้หลาย CORS proxy เป็น fallback สำหรับ GitHub Pages
         const proxyServices = [
-            'https://api.allorigins.win/get?url=',
-            'https://corsproxy.io/?',
-            'https://api.codetabs.com/v1/proxy?quest='
+            {
+                url: 'https://api.allorigins.win/get?url=',
+                type: 'allorigins'
+            },
+            {
+                url: 'https://thingproxy.freeboard.io/fetch/',
+                type: 'thingproxy'
+            },
+            {
+                url: 'https://corsproxy.io/?',
+                type: 'corsproxy'
+            }
         ];
         
-        console.log(`🔍 Searching for: ${destination.title} via Google Places API`);
+        console.log(`Searching for: ${destination.title} directly via Google Places API`);
         
-        for (const proxyUrl of proxyServices) {
+        for (const proxy of proxyServices) {
             try {
                 const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${searchQuery}&key=${apiKey}&language=th&region=th`;
+                
+                console.log(`🔄 Trying proxy: ${proxy.type}`);
                 
                 let response;
                 let searchData;
                 
-                console.log(`Trying proxy: ${proxyUrl}`);
-                
-                if (proxyUrl.includes('allorigins')) {
-                    response = await fetch(proxyUrl + encodeURIComponent(searchUrl));
+                // Handle different proxy types
+                if (proxy.type === 'allorigins') {
+                    response = await fetch(proxy.url + encodeURIComponent(searchUrl));
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const data = await response.json();
                     if (data.status && data.status.http_code !== 200) {
@@ -533,7 +543,7 @@ async function fetchGooglePlacesDirectly(destination) {
                     }
                     searchData = JSON.parse(data.contents);
                 } else {
-                    response = await fetch(proxyUrl + searchUrl);
+                    response = await fetch(proxy.url + searchUrl);
                     if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     searchData = await response.json();
                 }
@@ -551,8 +561,8 @@ async function fetchGooglePlacesDirectly(destination) {
                     let detailsResponse;
                     let detailsData;
                     
-                    if (proxyUrl.includes('allorigins')) {
-                        detailsResponse = await fetch(proxyUrl + encodeURIComponent(detailsUrl));
+                    if (proxy.type === 'allorigins') {
+                        detailsResponse = await fetch(proxy.url + encodeURIComponent(detailsUrl));
                         if (!detailsResponse.ok) throw new Error(`HTTP ${detailsResponse.status}`);
                         const detailsResponseData = await detailsResponse.json();
                         if (detailsResponseData.status && detailsResponseData.status.http_code !== 200) {
@@ -560,7 +570,7 @@ async function fetchGooglePlacesDirectly(destination) {
                         }
                         detailsData = JSON.parse(detailsResponseData.contents);
                     } else {
-                        detailsResponse = await fetch(proxyUrl + detailsUrl);
+                        detailsResponse = await fetch(proxy.url + detailsUrl);
                         if (!detailsResponse.ok) throw new Error(`HTTP ${detailsResponse.status}`);
                         detailsData = await detailsResponse.json();
                     }
@@ -587,16 +597,22 @@ async function fetchGooglePlacesDirectly(destination) {
                         }
                     } else {
                         console.log(`❌ Details API error: ${detailsData.status} - ${detailsData.error_message || 'Unknown error'}`);
+                        if (detailsData.status === 'REQUEST_DENIED') {
+                            console.log('🔑 API key may have domain restrictions (this is normal for security)');
+                        }
                     }
                 } else {
                     console.log(`❌ Search API error: ${searchData.status} - ${searchData.error_message || 'No results found'}`);
+                    if (searchData.status === 'REQUEST_DENIED') {
+                        console.log('🔑 API key may have domain restrictions (this is normal for security)');
+                    }
                 }
                 
                 // หากไม่พบข้อมูลจาก proxy นี้ ให้ลอง proxy ถัดไป
                 continue;
                 
             } catch (proxyError) {
-                console.log(`❌ Proxy ${proxyUrl} failed:`, proxyError.message);
+                console.log(`❌ Proxy ${proxy.type} failed:`, proxyError.message);
                 continue;
             }
         }
@@ -605,7 +621,7 @@ async function fetchGooglePlacesDirectly(destination) {
         return [];
         
     } catch (error) {
-        console.error('❌ Direct Google Places API error:', error);
+        console.error('Direct Google Places API error:', error);
         return [];
     }
 }
