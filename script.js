@@ -451,7 +451,7 @@ function displayReviews(reviews, container) {
 
 async function fetchGooglePlacesReviews(destination) {
     try {
-        // ลองเรียก API ผ่าน server proxy ก่อน
+        // ลองเรียก API ผ่าน server proxy ก่อน (สำหรับ localhost)
         const response = await fetch('/api/places/reviews', {
             method: 'POST',
             headers: {
@@ -468,26 +468,120 @@ async function fetchGooglePlacesReviews(destination) {
         if (response.ok) {
             const data = await response.json();
             if (data.reviews && data.reviews.length > 0) {
-                console.log('Successfully fetched reviews from Google Places API');
+                console.log('Successfully fetched reviews from server API');
                 return data.reviews;
             }
         }
-        
-        // หากไม่สามารถเรียก API ได้ ให้ใช้ข้อมูล mock
-        console.log('API not available, using enhanced mock data');
-        return await mockGooglePlacesResponse(destination);
-        
     } catch (error) {
-        console.error('Error fetching Google Places reviews:', error);
-        // ใช้ข้อมูล mock เป็น fallback
-        return await mockGooglePlacesResponse(destination);
+        console.log('Server API not available, trying direct Google Places API');
     }
+    
+    // หากไม่สามารถเรียกผ่าน server ได้ (GitHub Pages) ให้เรียก Google Places API โดยตรง
+    const directApiReviews = await fetchGooglePlacesDirectly(destination);
+    if (directApiReviews && directApiReviews.length > 0) {
+        console.log('Successfully fetched reviews from direct Google Places API');
+        return directApiReviews;
+    }
+    
+    // หากไม่สามารถเรียก API ได้ ให้ใช้ข้อมูล mock
+    console.log('Google Places API not available, using enhanced mock data');
+    return await mockGooglePlacesResponse(destination);
 }
 
 function getGooglePlacesApiKey() {
-    // ในการใช้งานจริง ควรเก็บ API key ใน environment variable หรือ config file
-    // สำหรับ demo นี้จะ return null เพื่อใช้ข้อมูล mock
-    return null; // return 'YOUR_GOOGLE_PLACES_API_KEY';
+    // ใช้ Google Places API key สำหรับ GitHub Pages
+    // ในการใช้งานจริงควรเก็บ API key ใน environment variable
+    return 'AIzaSyBOti4mM-6x9WDnZIjIeyb7exFVnhExh0c'; // API key สำหรับ demo
+}
+
+async function fetchGooglePlacesDirectly(destination) {
+    try {
+        // ใช้ Google Places API key
+        const apiKey = getGooglePlacesApiKey();
+        
+        if (!apiKey) {
+            console.log('Google Places API key not configured');
+            return [];
+        }
+        
+        // ค้นหาสถานที่ด้วย Text Search API
+        const searchQuery = encodeURIComponent(`${destination.title} ${destination.address || 'บึงกาฬ'}`);
+        
+        // ใช้หลาย CORS proxy เป็น fallback
+        const proxyServices = [
+            'https://api.allorigins.win/get?url=',
+            'https://cors-anywhere.herokuapp.com/',
+            'https://api.codetabs.com/v1/proxy?quest='
+        ];
+        
+        console.log(`Searching for: ${destination.title} directly via Google Places API`);
+        
+        for (const proxyUrl of proxyServices) {
+            try {
+                const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${searchQuery}&key=${apiKey}&language=th`;
+                
+                let response;
+                let searchData;
+                
+                if (proxyUrl.includes('allorigins')) {
+                    response = await fetch(proxyUrl + encodeURIComponent(searchUrl));
+                    const data = await response.json();
+                    searchData = JSON.parse(data.contents);
+                } else {
+                    response = await fetch(proxyUrl + searchUrl);
+                    searchData = await response.json();
+                }
+                
+                if (searchData.status === 'OK' && searchData.results && searchData.results.length > 0) {
+                    const placeId = searchData.results[0].place_id;
+                    console.log(`Found place ID: ${placeId} via ${proxyUrl}`);
+                    
+                    // ดึงรายละเอียดสถานที่รวมถึงรีวิว
+                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}&language=th`;
+                    
+                    let detailsResponse;
+                    let detailsData;
+                    
+                    if (proxyUrl.includes('allorigins')) {
+                        detailsResponse = await fetch(proxyUrl + encodeURIComponent(detailsUrl));
+                        const detailsResponseData = await detailsResponse.json();
+                        detailsData = JSON.parse(detailsResponseData.contents);
+                    } else {
+                        detailsResponse = await fetch(proxyUrl + detailsUrl);
+                        detailsData = await detailsResponse.json();
+                    }
+                    
+                    if (detailsData.status === 'OK' && detailsData.result && detailsData.result.reviews) {
+                        const reviews = detailsData.result.reviews.map(review => ({
+                            author: review.author_name,
+                            rating: review.rating,
+                            text: review.text,
+                            relative_time_description: review.relative_time_description,
+                            profile_photo_url: review.profile_photo_url,
+                            time: review.time
+                        }));
+                        
+                        console.log(`✅ Found ${reviews.length} real reviews for ${destination.title} via direct API`);
+                        return reviews.slice(0, 5); // จำกัดแค่ 5 รีวิว
+                    }
+                }
+                
+                // หากไม่พบข้อมูลจาก proxy นี้ ให้ลอง proxy ถัดไป
+                continue;
+                
+            } catch (proxyError) {
+                console.log(`Proxy ${proxyUrl} failed:`, proxyError.message);
+                continue;
+            }
+        }
+        
+        console.log(`❌ No reviews found for ${destination.title} via any proxy service`);
+        return [];
+        
+    } catch (error) {
+        console.error('Direct Google Places API error:', error);
+        return [];
+    }
 }
 
 async function mockGooglePlacesResponse(destination) {
