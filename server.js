@@ -366,6 +366,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Serve admin page
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 // Initialize database connection and start server
 connectDB().then(() => {
     app.listen(PORT, () => {

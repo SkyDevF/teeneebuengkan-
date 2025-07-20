@@ -941,9 +941,30 @@ img {
 .main-footer .footer-bottom {
     text-align: center;
     border-top: 1px solid var(--border-color);
+    position: relative;
     padding-top: 30px;
     font-size: 0.9em;
     color: var(--text-muted);
+}
+
+.admin-link {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1.2em;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all var(--transition-normal);
+    opacity: 0.5;
+}
+
+.admin-link:hover {
+    color: var(--primary-color);
+    background: var(--light-purple);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* Modal Styles */
