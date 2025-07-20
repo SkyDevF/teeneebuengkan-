@@ -489,9 +489,8 @@ async function fetchGooglePlacesReviews(destination) {
 }
 
 function getGooglePlacesApiKey() {
-    // ใช้ Google Places API key สำหรับ GitHub Pages
-    // ในการใช้งานจริงควรเก็บ API key ใน environment variable
-    return 'AIzaSyBOti4mM-6x9WDnZIjIeyb7exFVnhExh0c'; // API key สำหรับ demo
+    // ใช้ Google Places API key ที่กำหนดไว้
+    return 'AIzaSyCmhI9UFvQxJmptzDcobDb8i-7v0dr9AJk';
 }
 
 async function fetchGooglePlacesDirectly(destination) {
@@ -505,72 +504,99 @@ async function fetchGooglePlacesDirectly(destination) {
         }
         
         // ค้นหาสถานที่ด้วย Text Search API
-        const searchQuery = encodeURIComponent(`${destination.title} ${destination.address || 'บึงกาฬ'}`);
+        const searchQuery = encodeURIComponent(`${destination.title} บึงกาฬ ประเทศไทย`);
         
-        // ใช้หลาย CORS proxy เป็น fallback
+        // ใช้หลาย CORS proxy เป็น fallback สำหรับ GitHub Pages
         const proxyServices = [
             'https://api.allorigins.win/get?url=',
-            'https://cors-anywhere.herokuapp.com/',
+            'https://corsproxy.io/?',
             'https://api.codetabs.com/v1/proxy?quest='
         ];
         
-        console.log(`Searching for: ${destination.title} directly via Google Places API`);
+        console.log(`🔍 Searching for: ${destination.title} via Google Places API`);
         
         for (const proxyUrl of proxyServices) {
             try {
-                const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${searchQuery}&key=${apiKey}&language=th`;
+                const searchUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${searchQuery}&key=${apiKey}&language=th&region=th`;
                 
                 let response;
                 let searchData;
                 
+                console.log(`Trying proxy: ${proxyUrl}`);
+                
                 if (proxyUrl.includes('allorigins')) {
                     response = await fetch(proxyUrl + encodeURIComponent(searchUrl));
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     const data = await response.json();
+                    if (data.status && data.status.http_code !== 200) {
+                        throw new Error(`Proxy error: ${data.status.http_code}`);
+                    }
                     searchData = JSON.parse(data.contents);
                 } else {
                     response = await fetch(proxyUrl + searchUrl);
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
                     searchData = await response.json();
                 }
                 
+                console.log(`Search response status: ${searchData.status}`);
+                
                 if (searchData.status === 'OK' && searchData.results && searchData.results.length > 0) {
-                    const placeId = searchData.results[0].place_id;
-                    console.log(`Found place ID: ${placeId} via ${proxyUrl}`);
+                    const place = searchData.results[0];
+                    const placeId = place.place_id;
+                    console.log(`✅ Found place: ${place.name} (ID: ${placeId})`);
                     
                     // ดึงรายละเอียดสถานที่รวมถึงรีวิว
-                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}&language=th`;
+                    const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total,name&key=${apiKey}&language=th`;
                     
                     let detailsResponse;
                     let detailsData;
                     
                     if (proxyUrl.includes('allorigins')) {
                         detailsResponse = await fetch(proxyUrl + encodeURIComponent(detailsUrl));
+                        if (!detailsResponse.ok) throw new Error(`HTTP ${detailsResponse.status}`);
                         const detailsResponseData = await detailsResponse.json();
+                        if (detailsResponseData.status && detailsResponseData.status.http_code !== 200) {
+                            throw new Error(`Proxy error: ${detailsResponseData.status.http_code}`);
+                        }
                         detailsData = JSON.parse(detailsResponseData.contents);
                     } else {
                         detailsResponse = await fetch(proxyUrl + detailsUrl);
+                        if (!detailsResponse.ok) throw new Error(`HTTP ${detailsResponse.status}`);
                         detailsData = await detailsResponse.json();
                     }
                     
-                    if (detailsData.status === 'OK' && detailsData.result && detailsData.result.reviews) {
-                        const reviews = detailsData.result.reviews.map(review => ({
-                            author: review.author_name,
-                            rating: review.rating,
-                            text: review.text,
-                            relative_time_description: review.relative_time_description,
-                            profile_photo_url: review.profile_photo_url,
-                            time: review.time
-                        }));
+                    console.log(`Details response status: ${detailsData.status}`);
+                    
+                    if (detailsData.status === 'OK' && detailsData.result) {
+                        const result = detailsData.result;
                         
-                        console.log(`✅ Found ${reviews.length} real reviews for ${destination.title} via direct API`);
-                        return reviews.slice(0, 5); // จำกัดแค่ 5 รีวิว
+                        if (result.reviews && result.reviews.length > 0) {
+                            const reviews = result.reviews.map(review => ({
+                                author: review.author_name,
+                                rating: review.rating,
+                                text: review.text,
+                                relative_time_description: review.relative_time_description,
+                                profile_photo_url: review.profile_photo_url,
+                                time: review.time
+                            }));
+                            
+                            console.log(`✅ Found ${reviews.length} real reviews for ${destination.title}`);
+                            return reviews.slice(0, 5); // จำกัดแค่ 5 รีวิว
+                        } else {
+                            console.log(`ℹ️ Place found but no reviews available for ${destination.title}`);
+                        }
+                    } else {
+                        console.log(`❌ Details API error: ${detailsData.status} - ${detailsData.error_message || 'Unknown error'}`);
                     }
+                } else {
+                    console.log(`❌ Search API error: ${searchData.status} - ${searchData.error_message || 'No results found'}`);
                 }
                 
                 // หากไม่พบข้อมูลจาก proxy นี้ ให้ลอง proxy ถัดไป
                 continue;
                 
             } catch (proxyError) {
-                console.log(`Proxy ${proxyUrl} failed:`, proxyError.message);
+                console.log(`❌ Proxy ${proxyUrl} failed:`, proxyError.message);
                 continue;
             }
         }
@@ -579,7 +605,7 @@ async function fetchGooglePlacesDirectly(destination) {
         return [];
         
     } catch (error) {
-        console.error('Direct Google Places API error:', error);
+        console.error('❌ Direct Google Places API error:', error);
         return [];
     }
 }

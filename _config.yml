@@ -1,0 +1,29 @@
+# GitHub Pages configuration
+plugins:
+  - jekyll-relative-links
+
+relative_links:
+  enabled: true
+  collections: true
+
+include:
+  - .nojekyll
+  - .env
+  - api.js
+  - script.js
+  - style.css
+  - server.js
+  - package.json
+  - คาเฟ่
+  - ที่พัก
+  - ร้านอาหาร
+  - สถานที่ท่องเที่ยว
+
+# Exclude files from processing
+exclude:
+  - node_modules/
+  - .git/
+  - .github/
+  - .vscode/
+  - README.md
+  - package-lock.json
